@@ -3,6 +3,9 @@
   "version": "0.2.6",
   "description": "dynamic analysis framework for JavaScript",
   "dependencies": {
+    "@babel/cli": "^7.22.15",
+    "@babel/core": "^7.22.17",
+    "@babel/preset-env": "^7.22.15",
     "acorn": "7.2.0",
     "argparse": "0.1.6",
     "codemirror": "5.1.0",
@@ -10,9 +13,9 @@
     "datatables": "1.10.6",
     "esotope": "1.4.5",
     "estraverse": "4.0.0",
+    "graceful-ncp": "3.0.0",
     "jquery": "3.5.0",
     "mkdirp": "0.5.6",
-    "graceful-ncp": "3.0.0",
     "parse5": "2.1.5",
     "q": "1.2.0",
     "rewriting-proxy": "0.5.1",
@@ -23,7 +26,20 @@
     "esotope"
   ],
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec node_test && python3 scripts/runalltests.py"
+    "jalangiTracerBase": "node src/js/commands/jalangi.js --inlineIID --inlineSource --analysis src/js/sample_analyses/ChainedAnalyses.js --analysis src/js/runtime/SMemory.js --analysis src/js/sample_analyses/trace/EventActionTraceLogger.js",
+    "jalangiInstrumentBase":  "node src/js/commands/instrument.js --inlineIID --inlineSource --inlineJalangi --analysis src/js/sample_analyses/ChainedAnalyses.js --analysis src/js/runtime/SMemory.js --analysis src/js/sample_analyses/trace/EventActionTraceLogger.js",
+    "runTraceDeltablue": "npm run jalangiTracerBase -- tests/octane/deltablue.js",
+    "runTraceNodecounter": "npm run jalangiTracerBase -- ../basicTests/nodeCounter/counter.js",
+    "instrumentJustOneCall": "npm run jalangiInstrumentBase -- --outputDir ../basicTests/jalangi_out/webJustOneCall ../basicTests/webJustOneCall",
+    "instrumentGlobalVariables": "npm run jalangiInstrumentBase -- --outputDir ../basicTests/jalangi_out/globalVariables ../basicTests/globalVariables",
+    "instrumentBrowserLockAPI": "npm run babelifyBrowserLockAPI && npm run copyNonJsBrowserLockAPI && npm run jalangifyBrowserLockAPI",
+      "babelifyBrowserLockAPI": "babel -d ../basicTests/babelified/browserLockAPI ../basicTests/browserLockAPI",
+      "copyNonJsBrowserLockAPI": "./../scripts/copyNonJsFiles.sh ../basicTests/browserLockAPI",
+      "jalangifyBrowserLockAPI": "npm run jalangiInstrumentBase -- --outputDir ../basicTests/jalangi_out/browserLockAPI ../basicTests/babelified/browserLockAPI",
+    "instrumentIntervalTest": "npm run babelifyIntervalTest && npm run copyNonJsIntervalTest && npm run jalangifyIntervalTest",
+      "babelifyIntervalTest": "babel -d ../basicTests/babelified/intervalTest ../basicTests/intervalTest/genericInterval.test.js",
+      "copyNonJsIntervalTest": "./../scripts/copyNonJsFiles.sh ../basicTests/intervalTest",
+      "jalangifyIntervalTest":  "npm run jalangiInstrumentBase -- --outputDir ../basicTests/jalangi_out/intervalTest ../basicTests/babelified/intervalTest"
   },
   "license": "Apache-2.0",
   "repository": {
@@ -35,5 +51,9 @@
     "shelljs": "^0.6.0"
   },
   "main": "src/js/utils/api.js",
-  "bin": "src/js/commands/jalangi.js"
+  "bin": "src/js/commands/jalangi.js",
+  "bundleDependencies": [
+    "acorn",
+    "esotope"
+  ]
 }
